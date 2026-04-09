@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Plus, Search, Edit2, Trash2, Filter } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSearchStore } from "@/store/useSearchStore";
@@ -9,7 +9,8 @@ import { useActivityStore } from "@/store/useActivityStore";
 import { cn } from "@/lib/utils";
 
 interface InventoryItem {
-  id: string;
+  _id?: string;
+  id?: string;
   name: string;
   category: string;
   quantity: number;
@@ -25,17 +26,21 @@ export const InventoryTable = () => {
 
   const [items, setItems] = useState<InventoryItem[]>([]);
 
-  const fetchItems = async () => {
-    const res = await fetch('/api/inventory');
-    const data = await res.json();
-    setItems(data);
-  };
+  const fetchItems = useCallback(async () => {
+    try {
+      const res = await fetch('/api/inventory');
+      const data = await res.json();
+      setItems(data);
+    } catch (err) {
+      console.error("Failed to fetch inventory:", err);
+    }
+  }, []);
 
   useEffect(() => {
     fetchItems();
     const interval = setInterval(fetchItems, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchItems]);
 
   const filteredItems = useMemo(() => {
     if (!searchQuery) return items;
@@ -48,7 +53,6 @@ export const InventoryTable = () => {
 
   const handleAddItem = async () => {
     const newItem = {
-      id: Math.random().toString(36).substr(2, 9),
       name: "New Equipment",
       category: "Misc",
       quantity: 1,
@@ -104,37 +108,40 @@ export const InventoryTable = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
-              {filteredItems.map((item) => (
-                <tr key={item.id} className="transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                  <td className="px-6 py-4 font-medium">{item.name}</td>
-                  <td className="px-6 py-4 text-slate-500">{item.category}</td>
-                  <td className="px-6 py-4">{item.quantity}</td>
-                  <td className="px-6 py-4">
-                    <span className={cn(
-                      "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium",
-                      item.status === "In Stock" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
-                      item.status === "Low Stock" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                      "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                    )}>
-                      {item.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-slate-500">{item.lastUpdated}</td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button className="rounded p-1 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                        <Edit2 className="h-4 w-4 text-slate-500" />
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteItem(item.id, item.name)}
-                        className="rounded p-1 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {filteredItems.map((item) => {
+                const itemId = item._id || item.id || '';
+                return (
+                  <tr key={itemId} className="transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                    <td className="px-6 py-4 font-medium">{item.name}</td>
+                    <td className="px-6 py-4 text-slate-500">{item.category}</td>
+                    <td className="px-6 py-4">{item.quantity}</td>
+                    <td className="px-6 py-4">
+                      <span className={cn(
+                        "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium",
+                        item.status === "In Stock" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
+                        item.status === "Low Stock" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
+                        "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                      )}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-slate-500">{item.lastUpdated}</td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button className="rounded p-1 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                          <Edit2 className="h-4 w-4 text-slate-500" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteItem(itemId, item.name)}
+                          className="rounded p-1 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

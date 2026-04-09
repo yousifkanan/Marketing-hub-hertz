@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Plus, MoreHorizontal, Calendar, X, Save } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -40,7 +40,7 @@ export const KanbanBoard = () => {
     assignee: user?.name || ""
   });
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       const res = await fetch('/api/tasks');
       const data = await res.json();
@@ -48,13 +48,13 @@ export const KanbanBoard = () => {
     } catch (err) {
       console.error('Failed to fetch tasks:', err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchTasks();
     const interval = setInterval(fetchTasks, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchTasks]);
 
   const columns: { title: string; status: Status }[] = [
     { title: "To Do", status: "TODO" },
@@ -254,8 +254,6 @@ export const KanbanBoard = () => {
 };
 
 const TaskCard = ({ task, onClick }: { task: Task, onClick: () => void }) => {
-  const { t } = useTranslation();
-
   return (
     <motion.div
       layout

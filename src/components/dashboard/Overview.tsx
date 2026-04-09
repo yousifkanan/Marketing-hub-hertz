@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useCallback } from "react";
 import { 
-  BarChart, 
-  Bar, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
@@ -37,17 +35,16 @@ export const DashboardOverview = () => {
   const { ads, fetchAds } = useAdsStore();
   const { activities, fetchActivities } = useActivityStore();
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     fetchAds();
     fetchActivities();
-    
-    // Poll for updates every 5 seconds for local network feel
-    const interval = setInterval(() => {
-      fetchAds();
-      fetchActivities();
-    }, 5000);
+  }, [fetchAds, fetchActivities]);
+
+  useEffect(() => {
+    loadData();
+    const interval = setInterval(loadData, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [loadData]);
 
   const adsStats = useMemo(() => {
     return ads.reduce(
@@ -137,13 +134,7 @@ export const DashboardOverview = () => {
                   key={act.id}
                   user={act.user} 
                   action={act.action} 
-                  time={
-                    act.time === "Just now" 
-                      ? act.time 
-                      : act.timestamp 
-                        ? formatDistanceToNow(new Date(act.timestamp)) + " ago" 
-                        : "Recently"
-                  } 
+                  time={act.time === "Just now" ? act.time : (act.timestamp ? formatDistanceToNow(new Date(act.timestamp)) + " ago" : "Recently")} 
                   color={act.color} 
                 />
               ))

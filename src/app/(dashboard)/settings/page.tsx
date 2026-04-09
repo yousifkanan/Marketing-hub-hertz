@@ -5,20 +5,18 @@ import {
   UserPlus, 
   LogOut, 
   Shield, 
-  Lock, 
   User as UserIcon,
   Trash2,
   Edit2,
   X,
   Save,
-  Briefcase
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Role } from "@/types";
+import { Role, User } from "@/types";
 
 interface UserEntry {
   _id?: string;
@@ -47,17 +45,16 @@ export default function SettingsPage() {
     role: "USER" as Role 
   });
 
-  const fetchUsers = async () => {
-    try {
-      const res = await fetch('/api/users');
-      const data = await res.json();
-      setUsers(data);
-    } catch (err) {
-      console.error('Failed to fetch users:', err);
-    }
-  };
-
   useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch('/api/users');
+        const data = await res.json();
+        setUsers(data);
+      } catch (err) {
+        console.error('Failed to fetch users:', err);
+      }
+    };
     fetchUsers();
     setMounted(true);
   }, []);
@@ -96,7 +93,7 @@ export default function SettingsPage() {
       });
       
       if (editingUser.username === currentUser?.username) {
-        updateUser({ ...formData });
+        updateUser({ ...formData } as Partial<User>);
       }
     } else {
       await fetch('/api/users', {
@@ -105,7 +102,9 @@ export default function SettingsPage() {
         body: JSON.stringify(formData)
       });
     }
-    fetchUsers();
+    const res = await fetch('/api/users');
+    const data = await res.json();
+    setUsers(data);
     setIsModalOpen(false);
   };
 
@@ -117,7 +116,9 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: userId })
       });
-      fetchUsers();
+      const res = await fetch('/api/users');
+      const data = await res.json();
+      setUsers(data);
     }
   };
 

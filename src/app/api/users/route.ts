@@ -6,9 +6,8 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   await dbConnect();
-  let users = await User.find({});
+  const users = await User.find({});
   
-  // Initialize with default admin if empty
   if (users.length === 0) {
     const defaultAdmin = await User.create({
       name: "Yousif Khalid",
@@ -17,7 +16,7 @@ export async function GET() {
       password: "password",
       role: "ADMIN"
     });
-    users = [defaultAdmin];
+    return NextResponse.json([defaultAdmin]);
   }
   
   return NextResponse.json(users);

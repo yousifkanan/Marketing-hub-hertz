@@ -87,15 +87,15 @@ export default function ChatPage() {
               >
                 {!isSystem && (
                   <span className="text-[10px] font-black uppercase text-slate-500 mb-1 px-1">
-                    {isMe ? "You" : msg.senderName} • {format(msg.timestamp, "p")}
+                    {msg.senderName} • {format(msg.timestamp, "p")}
                   </span>
                 )}
                 
                 <div className={cn(
                   "px-4 py-2.5 rounded-2xl text-sm shadow-sm",
                   isMe 
-                    ? "bg-[#ffd100] text-slate-900 font-medium rounded-tr-none neon-box" 
-                    : "bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] rounded-tl-none",
+                    ? "bg-slate-200 dark:bg-slate-800 text-[var(--foreground)] rounded-tr-none" 
+                    : "bg-[#ffd100] text-slate-900 font-medium rounded-tl-none neon-box",
                   isSystem && "bg-slate-100 dark:bg-slate-800/50 text-slate-500 text-xs italic border-none rounded-full px-6"
                 )}>
                   {msg.text}

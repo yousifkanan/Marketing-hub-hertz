@@ -81,7 +81,7 @@ export default function ChatPage() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 className={cn(
                   "flex flex-col max-w-[80%]",
-                  isMe ? "ms-auto items-end" : "me-auto items-start",
+                  isMe ? "ml-auto items-end" : "mr-auto items-start",
                   isSystem && "mx-auto items-center max-w-full"
                 )}
               >

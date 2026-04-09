@@ -9,6 +9,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
+export const dynamic = 'force-dynamic';
+
 export default function ChatPage() {
   const { t, language } = useTranslation();
   const { user } = useAuthStore();

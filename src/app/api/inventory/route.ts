@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { Inventory } from '@/lib/models';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   await dbConnect();
   const items = await Inventory.find({});

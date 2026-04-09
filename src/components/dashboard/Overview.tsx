@@ -137,7 +137,13 @@ export const DashboardOverview = () => {
                   key={act.id}
                   user={act.user} 
                   action={act.action} 
-                  time={act.time === "Just now" ? act.time : formatDistanceToNow(act.timestamp) + " ago"} 
+                  time={
+                    act.time === "Just now" 
+                      ? act.time 
+                      : act.timestamp 
+                        ? formatDistanceToNow(new Date(act.timestamp)) + " ago" 
+                        : "Recently"
+                  } 
                   color={act.color} 
                 />
               ))

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { Ad } from '@/lib/models';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   await dbConnect();
   const ads = await Ad.find({});

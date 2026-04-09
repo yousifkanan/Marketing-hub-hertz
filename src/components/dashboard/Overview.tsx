@@ -19,15 +19,6 @@ import { ArrowUpRight, ArrowDownRight, Activity, Users, Target, Zap } from "luci
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
-const data = [
-  { name: "Jan", reach: 4000, engagement: 2400 },
-  { name: "Feb", reach: 3000, engagement: 1398 },
-  { name: "Mar", reach: 2000, engagement: 9800 },
-  { name: "Apr", reach: 2780, engagement: 3908 },
-  { name: "May", reach: 1890, engagement: 4800 },
-  { name: "Jun", reach: 2390, engagement: 3800 },
-];
-
 export const DashboardOverview = () => {
   const { t } = useTranslation();
   const { theme } = useAppStore();
@@ -46,6 +37,7 @@ export const DashboardOverview = () => {
     return () => clearInterval(interval);
   }, [loadData]);
 
+  // Aggregate stats for metric cards
   const adsStats = useMemo(() => {
     return ads.reduce(
       (acc, ad) => ({
@@ -58,7 +50,23 @@ export const DashboardOverview = () => {
     );
   }, [ads]);
 
-  const chartColor = "#ffd100";
+  // Prepare chart data from Ads Management data
+  const chartData = useMemo(() => {
+    if (ads.length === 0) {
+      return [
+        { name: "No Data", reach: 0, engagement: 0 },
+      ];
+    }
+    // Take the last 6 entries or all if less than 6
+    return ads.slice(-6).map(ad => ({
+      name: ad.adId || "Unknown",
+      reach: Number(ad.reach) || 0,
+      engagement: (Number(ad.likes) || 0) + (Number(ad.comments) || 0)
+    }));
+  }, [ads]);
+
+  const chartColorReach = "#ffd100";
+  const chartColorEng = "#ffd100"; // Setting both to yellow as requested
   const gridColor = theme === 'dark' ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)";
 
   return (
@@ -79,29 +87,44 @@ export const DashboardOverview = () => {
 
       <div className="grid gap-6 lg:grid-cols-7">
         <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 lg:col-span-4 shadow-sm">
-          <h3 className="mb-6 font-bold">{t("reach_vs_engagement")}</h3>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-bold">{t("reach_vs_engagement")}</h3>
+            <div className="flex gap-4 text-[10px] font-black uppercase tracking-widest">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-[#ffd100]" />
+                <span className="text-slate-500">Performance</span>
+              </div>
+            </div>
+          </div>
+          
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data}>
+              <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorReach" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={chartColor} stopOpacity={0.3} />
-                    <stop offset="95%" stopColor={chartColor} stopOpacity={0} />
+                    <stop offset="5%" stopColor={chartColorReach} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={chartColorReach} stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorEng" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={chartColorEng} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={chartColorEng} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                 <XAxis 
                   dataKey="name" 
                   stroke="#94a3b8" 
-                  fontSize={12} 
+                  fontSize={10} 
                   tickLine={false} 
                   axisLine={false} 
+                  tickFormatter={(val) => val.length > 8 ? val.substring(0, 8) + '...' : val}
                 />
                 <YAxis 
                   stroke="#94a3b8" 
-                  fontSize={12} 
+                  fontSize={10} 
                   tickLine={false} 
                   axisLine={false} 
+                  tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(1)}k` : val}
                 />
                 <Tooltip 
                   contentStyle={{ 
@@ -110,15 +133,25 @@ export const DashboardOverview = () => {
                     borderRadius: "8px", 
                     color: "var(--foreground)" 
                   }}
-                  itemStyle={{ color: "var(--foreground)" }}
+                  itemStyle={{ color: "var(--foreground)", fontSize: "12px", fontWeight: "bold" }}
                 />
                 <Area 
                   type="monotone" 
                   dataKey="reach" 
-                  stroke={chartColor} 
+                  stroke={chartColorReach} 
                   fillOpacity={1} 
                   fill="url(#colorReach)" 
-                  strokeWidth={3}
+                  strokeWidth={4}
+                  name="Reach"
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="engagement" 
+                  stroke={chartColorEng} 
+                  fillOpacity={0} 
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  name="Engagement"
                 />
               </AreaChart>
             </ResponsiveContainer>

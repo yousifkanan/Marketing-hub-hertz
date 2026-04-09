@@ -41,8 +41,18 @@ const ActivitySchema = new mongoose.Schema({
   timestamp: Number,
 }, { timestamps: true });
 
+const TaskSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: String,
+  status: { type: String, enum: ['TODO', 'IN_PROGRESS', 'POSTPONED', 'COMPLETED'], default: 'TODO' },
+  priority: { type: String, enum: ['High', 'Medium', 'Low'], default: 'Medium' },
+  deadline: String,
+  assignee: String,
+}, { timestamps: true });
+
 export const User = mongoose.models.User || mongoose.model('User', UserSchema);
 export const Ad = mongoose.models.Ad || mongoose.model('Ad', AdSchema);
 export const Inventory = mongoose.models.Inventory || mongoose.model('Inventory', InventorySchema);
 export const Message = mongoose.models.Message || mongoose.model('Message', MessageSchema);
 export const Activity = mongoose.models.Activity || mongoose.model('Activity', ActivitySchema);
+export const Task = mongoose.models.Task || mongoose.model('Task', TaskSchema);

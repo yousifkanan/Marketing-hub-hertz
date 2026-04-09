@@ -8,7 +8,7 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
   const { theme, dir, language } = useAppStore();
 
   useEffect(() => {
-    // Sync initial state to DOM
+    // Force set initial attributes on mount
     const root = document.documentElement;
     root.classList.remove("light", "dark");
     root.classList.add(theme);
@@ -17,12 +17,14 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
     root.lang = language;
     
     setMounted(true);
-  }, []);
+  }, [theme, dir, language]);
 
+  // To prevent hydration mismatch, we don't render anything that depends on 
+  // dynamic client state (like theme/lang classes) until after mount.
   if (!mounted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#020617]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#ffd100] border-t-transparent"></div>
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#020617]">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#ffd100] border-t-transparent shadow-[0_0_15px_rgba(255,209,0,0.5)]"></div>
       </div>
     );
   }

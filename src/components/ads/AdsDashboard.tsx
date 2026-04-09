@@ -19,7 +19,7 @@ export const AdsDashboard = () => {
 
   useEffect(() => {
     fetchAds();
-    const interval = setInterval(fetchAds, 5000);
+    const interval = setInterval(fetchAds, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -46,8 +46,7 @@ export const AdsDashboard = () => {
   }, [filteredAds]);
 
   const handleAddAd = () => {
-    const newAd: AdEntry = {
-      id: Math.random().toString(36).substr(2, 9),
+    const newAd: any = {
       adId: `AD-${(ads.length + 1).toString().padStart(3, "0")}`,
       budget: 0,
       reach: 0,
@@ -68,9 +67,6 @@ export const AdsDashboard = () => {
 
   const handleUpdateAd = (id: string, adId: string, field: keyof AdEntry, value: string | number) => {
     updateAd(id, field, value);
-    // Don't log every single keystroke, maybe log on blur in a real app, 
-    // but here we can just update the store. 
-    // To make it feel interactive, we could add an activity for significant changes.
   };
 
   return (
@@ -92,26 +88,10 @@ export const AdsDashboard = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title={t("total_spend")}
-          value={`$${stats.totalSpend.toLocaleString()}`}
-          icon={DollarSign}
-        />
-        <StatCard
-          title={t("total_reach")}
-          value={stats.totalReach.toLocaleString()}
-          icon={Users}
-        />
-        <StatCard
-          title={t("impressions")}
-          value={stats.totalImpressions.toLocaleString()}
-          icon={Eye}
-        />
-        <StatCard
-          title="Engagement"
-          value={stats.totalEngagement.toLocaleString()}
-          icon={TrendingUp}
-        />
+        <StatCard title={t("total_spend")} value={`$${stats.totalSpend.toLocaleString()}`} icon={DollarSign} />
+        <StatCard title={t("total_reach")} value={stats.totalReach.toLocaleString()} icon={Users} />
+        <StatCard title={t("impressions")} value={stats.totalImpressions.toLocaleString()} icon={Eye} />
+        <StatCard title="Engagement" value={stats.totalEngagement.toLocaleString()} icon={TrendingUp} />
       </div>
 
       <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm">
@@ -132,88 +112,91 @@ export const AdsDashboard = () => {
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
               <AnimatePresence initial={false}>
-                {filteredAds.map((ad) => (
-                  <motion.tr
-                    key={ad.id}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="group transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30"
-                  >
-                    <td className="px-4 py-3">
-                      <input
-                        type="text"
-                        value={ad.adId}
-                        onChange={(e) => handleUpdateAd(ad.id, ad.adId, "adId", e.target.value)}
-                        className="w-24 bg-transparent focus:outline-none font-medium"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input
-                        type="number"
-                        value={ad.budget}
-                        onChange={(e) => handleUpdateAd(ad.id, ad.adId, "budget", Number(e.target.value))}
-                        className="w-20 bg-transparent focus:outline-none"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input
-                        type="number"
-                        value={ad.reach}
-                        onChange={(e) => handleUpdateAd(ad.id, ad.adId, "reach", Number(e.target.value))}
-                        className="w-24 bg-transparent focus:outline-none"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input
-                        type="number"
-                        value={ad.impressions}
-                        onChange={(e) => handleUpdateAd(ad.id, ad.adId, "impressions", Number(e.target.value))}
-                        className="w-24 bg-transparent focus:outline-none"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input
-                        type="number"
-                        value={ad.likes}
-                        onChange={(e) => handleUpdateAd(ad.id, ad.adId, "likes", Number(e.target.value))}
-                        className="w-16 bg-transparent focus:outline-none"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input
-                        type="number"
-                        value={ad.comments}
-                        onChange={(e) => handleUpdateAd(ad.id, ad.adId, "comments", Number(e.target.value))}
-                        className="w-16 bg-transparent focus:outline-none"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input
-                        type="number"
-                        value={ad.views}
-                        onChange={(e) => handleUpdateAd(ad.id, ad.adId, "views", Number(e.target.value))}
-                        className="w-20 bg-transparent focus:outline-none"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <input
-                        type="number"
-                        value={ad.messages}
-                        onChange={(e) => handleUpdateAd(ad.id, ad.adId, "messages", Number(e.target.value))}
-                        className="w-16 bg-transparent focus:outline-none"
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => handleRemoveAd(ad.id, ad.adId)}
-                        className="opacity-0 transition-opacity group-hover:opacity-100 text-red-500 hover:text-red-600 p-1"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </motion.tr>
-                ))}
+                {filteredAds.map((ad) => {
+                  const adId = ad._id || ad.id || '';
+                  return (
+                    <motion.tr
+                      key={adId}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="group transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/30"
+                    >
+                      <td className="px-4 py-3">
+                        <input
+                          type="text"
+                          value={ad.adId}
+                          onChange={(e) => handleUpdateAd(adId, ad.adId, "adId", e.target.value)}
+                          className="w-24 bg-transparent focus:outline-none font-medium"
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="number"
+                          value={ad.budget}
+                          onChange={(e) => handleUpdateAd(adId, ad.adId, "budget", Number(e.target.value))}
+                          className="w-20 bg-transparent focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="number"
+                          value={ad.reach}
+                          onChange={(e) => handleUpdateAd(adId, ad.adId, "reach", Number(e.target.value))}
+                          className="w-24 bg-transparent focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="number"
+                          value={ad.impressions}
+                          onChange={(e) => handleUpdateAd(adId, ad.adId, "impressions", Number(e.target.value))}
+                          className="w-24 bg-transparent focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="number"
+                          value={ad.likes}
+                          onChange={(e) => handleUpdateAd(adId, ad.adId, "likes", Number(e.target.value))}
+                          className="w-16 bg-transparent focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="number"
+                          value={ad.comments}
+                          onChange={(e) => handleUpdateAd(adId, ad.adId, "comments", Number(e.target.value))}
+                          className="w-16 bg-transparent focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="number"
+                          value={ad.views}
+                          onChange={(e) => handleUpdateAd(adId, ad.adId, "views", Number(e.target.value))}
+                          className="w-20 bg-transparent focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="number"
+                          value={ad.messages}
+                          onChange={(e) => handleUpdateAd(adId, ad.adId, "messages", Number(e.target.value))}
+                          className="w-16 bg-transparent focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          onClick={() => handleRemoveAd(adId, ad.adId)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-600 p-1"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
               </AnimatePresence>
             </tbody>
           </table>

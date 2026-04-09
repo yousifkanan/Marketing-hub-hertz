@@ -1,7 +1,8 @@
 import { create } from "zustand";
 
 export interface AdEntry {
-  id: string;
+  _id?: string;
+  id?: string;
   adId: string;
   budget: number;
   reach: number;
@@ -50,7 +51,7 @@ export const useAdsStore = create<AdsState>((set, get) => ({
   updateAd: async (id, field, value) => {
     // Optimistic update
     set({
-      ads: get().ads.map(ad => ad.id === id ? { ...ad, [field]: value } : ad)
+      ads: get().ads.map(ad => (ad._id === id || ad.id === id) ? { ...ad, [field]: value } : ad)
     });
     await fetch('/api/ads', {
       method: 'PUT',

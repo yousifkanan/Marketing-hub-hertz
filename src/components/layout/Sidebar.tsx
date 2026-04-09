@@ -90,6 +90,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={onClose}
                   title={isSidebarCollapsed ? t(item.label) : ""}
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all group",

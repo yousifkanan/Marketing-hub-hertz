@@ -1,33 +1,20 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
-import { User } from '@/lib/models';
+import { Task } from '@/lib/models';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   await dbConnect();
-  let users = await User.find({});
-  
-  // Initialize with default admin if empty
-  if (users.length === 0) {
-    const defaultAdmin = await User.create({
-      name: "Yousif Khalid",
-      username: "admin",
-      position: "Director",
-      password: "password",
-      role: "ADMIN"
-    });
-    users = [defaultAdmin];
-  }
-  
-  return NextResponse.json(users);
+  const tasks = await Task.find({});
+  return NextResponse.json(tasks);
 }
 
 export async function POST(request: Request) {
   await dbConnect();
   const data = await request.json();
-  const user = await User.create(data);
-  return NextResponse.json(user);
+  const task = await Task.create(data);
+  return NextResponse.json(task);
 }
 
 export async function PUT(request: Request) {
@@ -35,13 +22,13 @@ export async function PUT(request: Request) {
   const data = await request.json();
   const { _id, id, ...updateData } = data;
   const targetId = _id || id;
-  await User.findByIdAndUpdate(targetId, updateData);
+  await Task.findByIdAndUpdate(targetId, updateData);
   return NextResponse.json({ success: true });
 }
 
 export async function DELETE(request: Request) {
   await dbConnect();
   const { id } = await request.json();
-  await User.findByIdAndDelete(id);
+  await Task.findByIdAndDelete(id);
   return NextResponse.json({ success: true });
 }

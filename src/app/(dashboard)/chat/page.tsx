@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Send, Smile, Paperclip, User, Bot } from "lucide-react";
+import { Send, Smile, Paperclip, Bot } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useChatStore, Message } from "@/store/useChatStore";
+import { useChatStore } from "@/store/useChatStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ export default function ChatPage() {
     fetchMessages();
     const interval = setInterval(fetchMessages, 3000); // More frequent for chat
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchMessages]);
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -31,11 +31,11 @@ export default function ChatPage() {
     }
   }, [messages]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim() || !user) return;
 
-    addMessage({
+    await addMessage({
       senderId: user.id,
       senderName: user.name,
       text: inputText,
@@ -61,11 +61,6 @@ export default function ChatPage() {
             <h3 className="font-bold text-lg leading-tight">{t("chat")}</h3>
             <p className="text-[10px] uppercase font-black tracking-widest text-green-500">Live Team Portal</p>
           </div>
-        </div>
-        <div className="flex -space-x-2 rtl:space-x-reverse">
-          <div className="h-8 w-8 rounded-full border-2 border-[var(--card)] bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold">YK</div>
-          <div className="h-8 w-8 rounded-full border-2 border-[var(--card)] bg-blue-500 flex items-center justify-center text-[10px] font-bold text-white">M</div>
-          <div className="h-8 w-8 rounded-full border-2 border-[var(--card)] bg-[#ffd100] flex items-center justify-center text-[10px] font-bold text-slate-900">+1</div>
         </div>
       </div>
 
